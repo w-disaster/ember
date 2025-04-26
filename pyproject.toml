@@ -4,8 +4,8 @@ packages = [
     { include = "ember" },
 ]
 version = "1.0.0"
-description = "A python project template, using Poetry."
-authors = ["Mattia Matteini <matteinimattia@gmail.com>"]
+description = "Elastic Malware Benchmark for Empowering Researchers "
+authors = ["Luca Fabri <luca.fabri1999@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
