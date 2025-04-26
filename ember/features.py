@@ -600,8 +600,8 @@ class PEFeatureExtractor(object):
         #                RuntimeError)
         try:
             lief_binary = lief.PE.parse(list(bytez))
-        except e:
-            print("lief error: ", str(e))
+        except exception:
+            print("lief error: ", str(exception))
             lief_binary = None
         except Exception:  # everything else (KeyboardInterrupt, SystemExit, ValueError):
             raise
@@ -615,8 +615,10 @@ class PEFeatureExtractor(object):
         features = np.hstack(feature_vectors).astype(np.float32)
         return features
 
+    def __flatten(self, list_of_lists):
+        return [item for sublist in list_of_lists for item in sublist]
+
     def column_names(self):
-        flatten = lambda list_of_lists: [item for sublist in list_of_lists for item in sublist]
         return flatten([fe.column_names() for fe in self.features])
 
     # def process_raw_features_df(self, raw_obj):
