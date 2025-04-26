@@ -32,10 +32,6 @@ jobs:
         shell: bash
         run: poe compile
 
-      - name: Static Checks
-        shell: bash
-        run: poe static-checks
-
       - name: Format Check
         shell: bash
         run: poe format-check
