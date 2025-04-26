@@ -10,22 +10,34 @@ def main():
     prog = "train_ember"
     descr = "Train an ember model from a directory with raw feature files"
     parser = argparse.ArgumentParser(prog=prog, description=descr)
-    parser.add_argument("-v", "--featureversion", type=int, default=2, help="EMBER feature version")
-    parser.add_argument("-m", "--metadata", action="store_true", help="Create metadata CSVs")
-    parser.add_argument("-t", "--train", action="store_true", help="Train an EMBER model")
-    parser.add_argument("datadir", metavar="DATADIR", type=str, help="Directory with raw features")
-    parser.add_argument("--optimize", help="gridsearch to find best parameters", action="store_true")
+    parser.add_argument(
+        "-v", "--featureversion", type=int, default=2, help="EMBER feature version"
+    )
+    parser.add_argument(
+        "-m", "--metadata", action="store_true", help="Create metadata CSVs"
+    )
+    parser.add_argument(
+        "-t", "--train", action="store_true", help="Train an EMBER model"
+    )
+    parser.add_argument(
+        "datadir", metavar="DATADIR", type=str, help="Directory with raw features"
+    )
+    parser.add_argument(
+        "--optimize", help="gridsearch to find best parameters", action="store_true"
+    )
     args = parser.parse_args()
 
     if not os.path.exists(args.datadir) or not os.path.isdir(args.datadir):
-        parser.error("{} is not a directory with raw feature files".format(args.datadir))
+        parser.error(
+            "{} is not a directory with raw feature files".format(args.datadir)
+        )
 
     X_train_path = os.path.join(args.datadir, "X_train.dat")
     y_train_path = os.path.join(args.datadir, "y_train.dat")
     if not (os.path.exists(X_train_path) and os.path.exists(y_train_path)):
         print("Creating vectorized features")
         ember.create_vectorized_features(args.datadir, args.featureversion)
-        
+
     if args.metadata:
         ember.create_metadata(args.datadir)
 
@@ -38,7 +50,7 @@ def main():
             "num_leaves": 2048,
             "max_depth": 15,
             "min_data_in_leaf": 50,
-            "feature_fraction": 0.5
+            "feature_fraction": 0.5,
         }
         if args.optimize:
             params = ember.optimize_model(args.datadir)

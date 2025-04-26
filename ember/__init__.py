@@ -10,7 +10,7 @@ import multiprocessing
 from .features import PEFeatureExtractor
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import TimeSeriesSplit
-from sklearn.metrics import (roc_auc_score, make_scorer)
+from sklearn.metrics import roc_auc_score, make_scorer
 
 
 def raw_feature_iterator(file_paths):
@@ -55,9 +55,16 @@ def vectorize_subset(X_path, y_path, raw_feature_paths, extractor, nrows):
 
     # Distribute the vectorization work
     pool = multiprocessing.Pool()
-    argument_iterator = ((irow, raw_features_string, X_path, y_path, extractor, nrows)
-                         for irow, raw_features_string in enumerate(raw_feature_iterator(raw_feature_paths)))
-    for _ in tqdm.tqdm(pool.imap_unordered(vectorize_unpack, argument_iterator), total=nrows):
+    argument_iterator = (
+        (irow, raw_features_string, X_path, y_path, extractor, nrows)
+        for irow, raw_features_string in enumerate(
+            raw_feature_iterator(raw_feature_paths)
+        )
+    )
+    print("Arg iterator", argument_iterator)
+    for _ in tqdm.tqdm(
+        pool.imap_unordered(vectorize_unpack, argument_iterator), total=nrows
+    ):
         pass
 
 
@@ -70,16 +77,19 @@ def create_vectorized_features(data_dir, feature_version=2):
     print("Vectorizing training set")
     X_path = os.path.join(data_dir, "X_train.dat")
     y_path = os.path.join(data_dir, "y_train.dat")
-    raw_feature_paths = [os.path.join(data_dir, "train_features_{}.jsonl".format(i)) for i in range(6)]
+    raw_feature_paths = [
+        os.path.join(data_dir, "malware_dataset_ember_features.jsonl")
+    ]  # [os.path.join(data_dir, "train_features_{}.jsonl".format(i)) for i in range(6)]
     nrows = sum([1 for fp in raw_feature_paths for line in open(fp)])
+    print("Nrows: ", nrows)
     vectorize_subset(X_path, y_path, raw_feature_paths, extractor, nrows)
 
-    print("Vectorizing test set")
-    X_path = os.path.join(data_dir, "X_test.dat")
-    y_path = os.path.join(data_dir, "y_test.dat")
-    raw_feature_paths = [os.path.join(data_dir, "test_features.jsonl")]
-    nrows = sum([1 for fp in raw_feature_paths for line in open(fp)])
-    vectorize_subset(X_path, y_path, raw_feature_paths, extractor, nrows)
+    # print("Vectorizing test set")
+    # X_path = os.path.join(data_dir, "X_test.dat")
+    # y_path = os.path.join(data_dir, "y_test.dat")
+    # raw_feature_paths = [os.path.join(data_dir, "test_features.jsonl")]
+    # nrows = sum([1 for fp in raw_feature_paths for line in open(fp)])
+    # vectorize_subset(X_path, y_path, raw_feature_paths, extractor, nrows)
 
 
 def read_vectorized_features(data_dir, subset=None, feature_version=2):
@@ -132,8 +142,12 @@ def create_metadata(data_dir):
     """
     pool = multiprocessing.Pool()
 
-    train_feature_paths = [os.path.join(data_dir, "train_features_{}.jsonl".format(i)) for i in range(6)]
-    train_records = list(pool.imap(read_metadata_record, raw_feature_iterator(train_feature_paths)))
+    train_feature_paths = [
+        os.path.join(data_dir, "train_features_{}.jsonl".format(i)) for i in range(6)
+    ]
+    train_records = list(
+        pool.imap(read_metadata_record, raw_feature_iterator(train_feature_paths))
+    )
 
     metadata_keys = ["sha256", "appeared", "label", "avclass"]
     ordered_metadata_keys = [k for k in metadata_keys if k in train_records[0].keys()]
@@ -144,7 +158,9 @@ def create_metadata(data_dir):
     train_records = [dict(record, **{"subset": "train"}) for record in train_records]
 
     test_feature_paths = [os.path.join(data_dir, "test_features.jsonl")]
-    test_records = list(pool.imap(read_metadata_record, raw_feature_iterator(test_feature_paths)))
+    test_records = list(
+        pool.imap(read_metadata_record, raw_feature_iterator(test_feature_paths))
+    )
 
     test_metadf = pd.DataFrame(test_records)[ordered_metadata_keys]
     test_metadf.to_csv(os.path.join(data_dir, "test_metadata.csv"))
@@ -172,7 +188,7 @@ def optimize_model(data_dir):
     X_train, y_train = read_vectorized_features(data_dir, subset="train")
 
     # Filter unlabeled data
-    train_rows = (y_train != -1)
+    train_rows = y_train != -1
 
     # read training dataset
     X_train = X_train[train_rows]
@@ -184,13 +200,13 @@ def optimize_model(data_dir):
 
     # define search grid
     param_grid = {
-        'boosting_type': ['gbdt'],
-        'objective': ['binary'],
-        'num_iterations': [500, 1000],
-        'learning_rate': [0.005, 0.05],
-        'num_leaves': [512, 1024, 2048],
-        'feature_fraction': [0.5, 0.8, 1.0],
-        'bagging_fraction': [0.5, 0.8, 1.0]
+        "boosting_type": ["gbdt"],
+        "objective": ["binary"],
+        "num_iterations": [500, 1000],
+        "learning_rate": [0.005, 0.05],
+        "num_leaves": [512, 1024, 2048],
+        "feature_fraction": [0.5, 0.8, 1.0],
+        "bagging_fraction": [0.5, 0.8, 1.0],
     }
     model = lgb.LGBMClassifier(boosting_type="gbdt", n_jobs=-1, silent=True)
 
@@ -198,7 +214,14 @@ def optimize_model(data_dir):
     # so this works for progrssive time series splitting
     progressive_cv = TimeSeriesSplit(n_splits=3).split(X_train)
 
-    grid = GridSearchCV(estimator=model, cv=progressive_cv, param_grid=param_grid, scoring=score, n_jobs=1, verbose=3)
+    grid = GridSearchCV(
+        estimator=model,
+        cv=progressive_cv,
+        param_grid=param_grid,
+        scoring=score,
+        n_jobs=1,
+        verbose=3,
+    )
     grid.fit(X_train, y_train)
 
     return grid.best_params_
@@ -215,7 +238,7 @@ def train_model(data_dir, params={}, feature_version=2):
     X_train, y_train = read_vectorized_features(data_dir, "train", feature_version)
 
     # Filter unlabeled data
-    train_rows = (y_train != -1)
+    train_rows = y_train != -1
 
     # Train
     lgbm_dataset = lgb.Dataset(X_train[train_rows], y_train[train_rows])
