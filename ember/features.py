@@ -67,6 +67,9 @@ class ByteHistogram(FeatureType):
         normalized = counts / sum
         return normalized
 
+    def column_names(self):
+        return ["byte_hist_" + str(i) for i in range(256)]
+
 
 class ByteEntropyHistogram(FeatureType):
     ''' 2d byte/entropy histogram based loosely on (Saxe and Berlin, 2015).
@@ -97,7 +100,7 @@ class ByteEntropyHistogram(FeatureType):
         return Hbin, c
 
     def raw_features(self, bytez, lief_binary):
-        output = np.zeros((16, 16), dtype=np.int)
+        output = np.zeros((16, 16), dtype=np.int32)
         a = np.frombuffer(bytez, dtype=np.uint8)
         if a.shape[0] < self.window:
             Hbin, c = self._entropy_bin_counts(a)
@@ -120,6 +123,9 @@ class ByteEntropyHistogram(FeatureType):
         sum = counts.sum()
         normalized = counts / sum
         return normalized
+
+    def column_names(self):
+        return ["byte_entropy_hist_" + str(i) for i in range(16 * 16)]
 
 
 class SectionInfo(FeatureType):
@@ -189,7 +195,10 @@ class SectionInfo(FeatureType):
         section_entropy_hashed = FeatureHasher(50, input_type="pair").transform([section_entropy]).toarray()[0]
         section_vsize = [(s['name'], s['vsize']) for s in sections]
         section_vsize_hashed = FeatureHasher(50, input_type="pair").transform([section_vsize]).toarray()[0]
-        entry_name_hashed = FeatureHasher(50, input_type="string").transform([raw_obj['entry']]).toarray()[0]
+
+        entry_name_hashed = FeatureHasher(50, input_type="string").transform([[raw_obj['entry']]]).toarray()[0]
+        
+
         characteristics = [p for s in sections for p in s['props'] if s['name'] == raw_obj['entry']]
         characteristics_hashed = FeatureHasher(50, input_type="string").transform([characteristics]).toarray()[0]
 
@@ -198,6 +207,13 @@ class SectionInfo(FeatureType):
             characteristics_hashed
         ]).astype(np.float32)
 
+    def column_names(self):
+        return ["sections_general_num_sections", "sections_general_num_zero_size", "sections_general_empty_name", "sections_general_num_rx", "sections_general_num_w"] + \
+            [f"sections_sizes_hashed_{i}" for i in range(50)] + \
+            [f"sections_entropy_hashed_{i}" for i in range(50)] + \
+            [f"sections_vsize_hashed_{i}" for i in range(50)] + \
+            [f"sections_entry_name_hashed_{i}" for i in range(50)] + \
+            [f"sections_characteristics_hashed_{i}" for i in range(50)]
 
 class ImportsInfo(FeatureType):
     ''' Information about imported libraries and functions from the
@@ -232,7 +248,7 @@ class ImportsInfo(FeatureType):
 
     def process_raw_features(self, raw_obj):
         # unique libraries
-        libraries = list(set([l.lower() for l in raw_obj.keys()]))
+        libraries = list(set([library.lower() for library in raw_obj.keys()]))
         libraries_hashed = FeatureHasher(256, input_type="string").transform([libraries]).toarray()[0]
 
         # A string like "kernel32.dll:CreateFileMappingA" for each imported function
@@ -241,6 +257,9 @@ class ImportsInfo(FeatureType):
 
         # Two separate elements: libraries (alone) and fully-qualified names of imported functions
         return np.hstack([libraries_hashed, imports_hashed]).astype(np.float32)
+
+    def column_names(self):
+        return [f"imp_libraries_hashed_{i}" for i in range(256)] + [f"imp_imports_hashed_{i}" for i in range(1024)]
 
 
 class ExportsInfo(FeatureType):
@@ -273,6 +292,9 @@ class ExportsInfo(FeatureType):
     def process_raw_features(self, raw_obj):
         exports_hashed = FeatureHasher(128, input_type="string").transform([raw_obj]).toarray()[0]
         return exports_hashed.astype(np.float32)
+
+    def column_names(self):
+        return [f'exports_hased_{i}' for i in range(128)]
 
 
 class GeneralFileInfo(FeatureType):
@@ -319,6 +341,12 @@ class GeneralFileInfo(FeatureType):
             raw_obj['symbols']
         ],
                           dtype=np.float32)
+
+    def column_names(self):
+        return [
+            'general_size', 'general_vsize', 'general_has_debug', 'general_exports', 'general_imports', 'general_has_relocations', 'general_has_resources',
+            'general_has_signature', 'general_has_tls', 'general_symbols'
+        ]
 
 
 class HeaderFileInfo(FeatureType):
@@ -396,6 +424,26 @@ class HeaderFileInfo(FeatureType):
             raw_obj['optional']['sizeof_heap_commit'],
         ]).astype(np.float32)
 
+    def column_names(self):
+        return ['header_coff_timestamp'] + \
+            [f'header_coff_machine_{i}' for i in range(10)] + \
+            [f'header_coff_characteristics_{i}' for i in range(10)] + \
+            [f'header_opt_subsystem_{i}' for i in range(10)] + \
+            [f'header_opt_dll_characteristics_{i}' for i in range(10)] + \
+            [f'header_opt_magic_{i}' for i in range(10)] + \
+            ['header_opt_major_image_version',
+            'header_opt_minor_image_version',
+            'header_opt_major_linker_version',
+            'header_opt_minor_linker_version',
+            'header_opt_major_operating_system_version',
+            'header_opt_minor_operating_system_version',
+            'header_opt_major_subsystem_version',
+            'header_opt_minor_subsystem_version',
+            'header_opt_sizeof_code',
+            'header_opt_sizeof_headers',
+            'header_opt_sizeof_heap_commit'
+        ]
+
 
 class StringExtractor(FeatureType):
     ''' Extracts strings from raw byte stream '''
@@ -456,6 +504,13 @@ class StringExtractor(FeatureType):
             raw_obj['registry'], raw_obj['MZ']
         ]).astype(np.float32)
 
+    ## TODO DOUBLE CHECK printabledist
+    def column_names(self):
+        return  ['strings_numstrings', 'strings_avlength', 'strings_printables'] + \
+            [f'strings_printabledist_{i}' for i in range(96)] + \
+            ['strings_entropy', 'strings_paths', 'strings_urls', 'strings_registry', 'strings_MZ']
+        
+
 
 class DataDirectories(FeatureType):
     ''' Extracts size and virtual address of the first 15 data directories '''
@@ -492,6 +547,13 @@ class DataDirectories(FeatureType):
                 features[2 * i + 1] = raw_obj[i]["virtual_address"]
         return features
 
+    def column_names(self):
+        names = []
+        for i in range(len(self._name_order)):
+            names.append("datadir_" + self._name_order[i] + "_size")
+            names.append("datadir_" + self._name_order[i] + "_virtual_address")
+        return names
+
 
 class PEFeatureExtractor(object):
     ''' Extract useful features from a PE file, and return as a vector of fixed size. '''
@@ -519,26 +581,26 @@ class PEFeatureExtractor(object):
         if feature_version == 1:
             if not lief.__version__.startswith("0.8.3"):
                 if print_feature_warning:
-                    print(f"WARNING: EMBER feature version 1 were computed using lief version 0.8.3-18d5b75")
+                    print("WARNING: EMBER feature version 1 were computed using lief version 0.8.3-18d5b75")
                     print(f"WARNING:   lief version {lief.__version__} found instead. There may be slight inconsistencies")
-                    print(f"WARNING:   in the feature calculations.")
+                    print("WARNING:   in the feature calculations.")
         elif feature_version == 2:
             self.features.append(DataDirectories())
             if not lief.__version__.startswith("0.9.0"):
                 if print_feature_warning:
-                    print(f"WARNING: EMBER feature version 2 were computed using lief version 0.9.0-")
+                    print("WARNING: EMBER feature version 2 were computed using lief version 0.9.0-")
                     print(f"WARNING:   lief version {lief.__version__} found instead. There may be slight inconsistencies")
-                    print(f"WARNING:   in the feature calculations.")
+                    print("WARNING:   in the feature calculations.")
         else:
             raise Exception(f"EMBER feature version must be 1 or 2. Not {feature_version}")
         self.dim = sum([fe.dim for fe in self.features])
 
     def raw_features(self, bytez):
-        lief_errors = (lief.bad_format, lief.bad_file, lief.pe_error, lief.parser_error, lief.read_out_of_bound,
-                       RuntimeError)
+        # lief_errors = (lief.bad_format, lief.bad_file, lief.pe_error, lief.parser_error, lief.read_out_of_bound,
+        #                RuntimeError)
         try:
             lief_binary = lief.PE.parse(list(bytez))
-        except lief_errors as e:
+        except e:
             print("lief error: ", str(e))
             lief_binary = None
         except Exception:  # everything else (KeyboardInterrupt, SystemExit, ValueError):
@@ -550,7 +612,18 @@ class PEFeatureExtractor(object):
 
     def process_raw_features(self, raw_obj):
         feature_vectors = [fe.process_raw_features(raw_obj[fe.name]) for fe in self.features]
-        return np.hstack(feature_vectors).astype(np.float32)
+        features = np.hstack(feature_vectors).astype(np.float32)
+        return features
+
+    def column_names(self):
+        flatten = lambda list_of_lists: [item for sublist in list_of_lists for item in sublist]
+        return flatten([fe.column_names() for fe in self.features])
+
+    # def process_raw_features_df(self, raw_obj):
+    #     flatten = lambda list_of_lists: [item for sublist in list_of_lists for item in sublist]
+    #     columns = flatten([fe.column_names() for fe in self.features])
+
+    #     return pd.DataFrame(self.process_raw_features(raw_obj)
 
     def feature_vector(self, bytez):
         return self.process_raw_features(self.raw_features(bytez))
