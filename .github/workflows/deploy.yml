@@ -47,5 +47,5 @@ jobs:
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TEST_PYPI: ${{ contains(github.repository, 'template') }}
+          RELEASE_TEST_PYPI: false
           RELEASE_DRY_RUN: ${{ github.ref_name != 'master' && github.ref_name != 'main' }}
