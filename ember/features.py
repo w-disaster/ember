@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """Extracts some basic features from PE files. Many of the features
 implemented have been used in previously published works. For more information,
 check out the following resources:
@@ -797,7 +796,7 @@ class PEFeatureExtractor(object):
         return [item for sublist in list_of_lists for item in sublist]
 
     def column_names(self):
-        return flatten([fe.column_names() for fe in self.features])
+        return self.__flatten([fe.column_names() for fe in self.features])
 
     # def process_raw_features_df(self, raw_obj):
     #     flatten = lambda list_of_lists: [item for sublist in list_of_lists for item in sublist]
