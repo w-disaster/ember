@@ -46,6 +46,6 @@ jobs:
           npx semantic-release --branches `git branch --show-current`
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TEST_PYPI: false
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          RELEASE_TEST_PYPI: ${{ contains(github.repository, 'template') }}
           RELEASE_DRY_RUN: ${{ github.ref_name != 'master' && github.ref_name != 'main' }}
