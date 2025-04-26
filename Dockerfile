@@ -1,17 +1,9 @@
-# Base image
-FROM mambaorg/micromamba:0.25.1
+FROM python:3.11
 
-# Set working directory
-WORKDIR /ember
+RUN pip install poetry
 
-# Install dependencies
-COPY --chown=$MAMBA_USER:$MAMBA_USER requirements_conda.txt /ember/
-RUN micromamba install -y -n base --channel conda-forge --file requirements_conda.txt && \
-    micromamba clean --all --yes
-ARG MAMBA_DOCKERFILE_ACTIVATE=1
+COPY . .
 
-# Copy all files
-COPY --chown=$MAMBA_USER:$MAMBA_USER . /ember
+RUN poetry install
 
-# Install EMBER
-RUN python setup.py install
+ENTRYPOINT ["poetry", "run", "python", "-m", "ember.feature_extraction"]
