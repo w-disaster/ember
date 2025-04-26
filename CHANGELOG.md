@@ -1,3 +1,25 @@
+## [1.1.0](https://github.com/w-disaster/ember/compare/1.0.0...1.1.0) (2025-04-26)
+
+### Features
+
+* feature extraction through docker ([fbeb9ed](https://github.com/w-disaster/ember/commit/fbeb9ede7d23434db753758eae885e5690a4994c))
+
+### Dependency updates
+
+* **deps:** update docker/build-push-action digest to 14487ce ([881dd7d](https://github.com/w-disaster/ember/commit/881dd7dc978e52f303a1d85b782988265a4db1af))
+
+### Build and continuous integration
+
+* restore old docker image deploy ([75bae35](https://github.com/w-disaster/ember/commit/75bae35ca049d2cff0054f6092cba4cab95d53d8))
+* trigger deploy-image on master ([8dc4348](https://github.com/w-disaster/ember/commit/8dc4348c57e7d14a3e4f000a1bac08de3f266f5c))
+* update deploy image ci file ([0dadc25](https://github.com/w-disaster/ember/commit/0dadc2591805b9c7341149301b7ba94b23d840fe))
+
+### General maintenance
+
+* naive Dockerfile ([8de000c](https://github.com/w-disaster/ember/commit/8de000c5753dc890086d0463cf0575f59b308c30))
+* remove setup.py ([f9131ee](https://github.com/w-disaster/ember/commit/f9131eea7ebd2dfeb51808cf588c0eb28f072684))
+* remove useless requirements ([352db3a](https://github.com/w-disaster/ember/commit/352db3aade02901e555bc14e647c55273d8a729d))
+
 ## 1.0.0 (2025-04-26)
 
 ### Features
