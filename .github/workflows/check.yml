@@ -81,6 +81,10 @@ jobs:
       - name: Restore Development Environment
         run: poetry install
 
+      - name: Bundle test/hello_world.py to single PE file
+        shell: bash
+        run: cd tests/ && bash bundle_hello_world_to_pe.sh
+
       - name: Test
         shell: bash
         run: poe test
