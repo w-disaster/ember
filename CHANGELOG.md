@@ -1,3 +1,17 @@
+## [1.2.1](https://github.com/w-disaster/ember/compare/1.2.0...1.2.1) (2025-04-27)
+
+### Dependency updates
+
+* **deps:** update dependency poetry to v2 ([78aca9e](https://github.com/w-disaster/ember/commit/78aca9e6739427c870f9bb12c1f66fdd7f0f30b5))
+
+### Bug Fixes
+
+* **deps:** update dependency numpy to v2 ([30ec109](https://github.com/w-disaster/ember/commit/30ec10950d33ff8bb4c3cb3831b8a4abbd06e25c))
+
+### General maintenance
+
+* remove unused dirs ([7caa048](https://github.com/w-disaster/ember/commit/7caa048b82cd9071fc718b3f2a3cb0edc6afc33d))
+
 ## [1.2.0](https://github.com/w-disaster/ember/compare/1.1.0...1.2.0) (2025-04-27)
 
 ### Features
