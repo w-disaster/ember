@@ -1,3 +1,23 @@
+## [1.2.2](https://github.com/w-disaster/ember/compare/1.2.1...1.2.2) (2025-04-27)
+
+### Bug Fixes
+
+* dataset filename in test script ([3ec3e13](https://github.com/w-disaster/ember/commit/3ec3e136cdbc051fceef4c65955adf894f5bea99))
+
+### Tests
+
+* add dataset shape test ([0a9ec06](https://github.com/w-disaster/ember/commit/0a9ec0697837de2e779d7ebfca5487795a7e8270))
+
+### Build and continuous integration
+
+* add test setup workflow ([b4fbbff](https://github.com/w-disaster/ember/commit/b4fbbffaaafa80bd6e1b223cf5065216f6bc860c))
+
+### General maintenance
+
+* remove pycache dir ([1f6fc76](https://github.com/w-disaster/ember/commit/1f6fc7696404f26b9848ca0084f698d886900aa9))
+* run tests only on linux ([17b3a7d](https://github.com/w-disaster/ember/commit/17b3a7d02f42884f1398a185940e31eedbc9d0e9))
+* temporary disable test with coverage ([a52c419](https://github.com/w-disaster/ember/commit/a52c41914430463ba2b4a766fb562eafc026348e))
+
 ## [1.2.1](https://github.com/w-disaster/ember/compare/1.2.0...1.2.1) (2025-04-27)
 
 ### Dependency updates
