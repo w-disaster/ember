@@ -1,0 +1,12 @@
+services:
+
+  ember-feature-extraction-pipeline:
+    image: ghcr.io/w-disaster/ember:master
+    container_name: ember-feature-extraction-pipeline
+    environment:
+      MALWARE_DIR_PATH: /usr/input_data/malware/
+      FINAL_DATASET_DIR: /usr/app/dataset/
+      N_PROCESSES: 32
+    volumes:
+      - "./base_pe_dir/:/usr/input_data/malware/"
+      - "./dataset/:/usr/app/dataset/"
