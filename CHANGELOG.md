@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/w-disaster/ember/compare/1.1.0...1.2.0) (2025-04-27)
+
+### Features
+
+* add family column in final dataset ([58463a6](https://github.com/w-disaster/ember/commit/58463a6a6781fc219e28d3b8c1136cef0baccb69))
+
 ## [1.1.0](https://github.com/w-disaster/ember/compare/1.0.0...1.1.0) (2025-04-26)
 
 ### Features
