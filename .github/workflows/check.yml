@@ -36,19 +36,19 @@ jobs:
         shell: bash
         run: poe format-check
 
-      - name: Test with Coverage
-        shell: bash
-        run: |
-          poe coverage
-          poe coverage-report
-          poe coverage-html
+      # - name: Test with Coverage
+      #   shell: bash
+      #   run: |
+      #     poe coverage
+      #     poe coverage-report
+      #     poe coverage-html
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report-${{ github.sha }}
-          path: htmlcov
-          if-no-files-found: ignore
-          overwrite: true
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: coverage-report-${{ github.sha }}
+      #     path: htmlcov
+      #     if-no-files-found: ignore
+      #     overwrite: true
 
   test:
     needs: check
@@ -84,6 +84,10 @@ jobs:
       - name: Bundle test/hello_world.py to single PE file
         shell: bash
         run: cd tests/ && bash bundle_hello_world_to_pe.sh
+
+      - name: Extract EMBER features
+        shell: bash
+        run: cd tests/ && docker compose up
 
       - name: Test
         shell: bash
