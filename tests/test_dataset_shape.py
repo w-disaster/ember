@@ -5,7 +5,7 @@ import os
 def test_dataset_shape():
     # Open dataset with the hello_world PE file
     print("Loading dataset with hello_world PE file...")
-    dataset_filename = os.path.join("testsdataset", "malware_ember_features.csv")
+    dataset_filename = os.path.join("tests", "dataset", "malware_ember_features.csv")
     df_ember_features = pd.read_csv(dataset_filename)
 
     df_ember_features.set_index("sha256", inplace=True)
