@@ -47,7 +47,11 @@ def create_ember_dataset():
 
     extractor = PEFeatureExtractor()
 
-    base_dir = os.getenv("MALWARE_DIR_PATH")  # "/home/luca/WD/NortonDataset670/MALWARE"
+    base_dir = os.environ.get(
+        "MALWARE_DIR_PATH"
+    )  # "/home/luca/WD/NortonDataset670/MALWARE"
+    if base_dir is None:
+        base_dir = "/home/luca/WD/NortonDataset670/MALWARE"
     malware_families_dirs = os.listdir(base_dir)
 
     malware_filenames = []
@@ -66,11 +70,15 @@ def create_ember_dataset():
 
     # Extract features
     logger.info("Starting feature extraction...")
-    n_proc = int(os.getenv("N_PROCESSES"))
+    n_proc = os.environ.get("N_PROCESSES")
+    if n_proc is None:
+        n_proc = 32
+    else:
+        n_proc = int(n_proc)
     with Pool(n_proc) as p:
         malware_ember_features = list(
             tqdm(
-                p.imap_unordered(
+                p.imap(
                     extract_raw_features,
                     [(extractor, filename) for filename in malware_filenames],
                 ),
@@ -95,8 +103,12 @@ def create_ember_dataset():
     logger.info("Feature merging completed.")
 
     # Save the dataframe to a CSV file
+    final_dataset_path = os.environ.get("FINAL_DATASET_DIR")
+    if final_dataset_path is None:
+        final_dataset_path = "dataset"
+
     malware_dataset_filename = os.path.join(
-        os.getenv("FINAL_DATASET_DIR"), "malware_ember_features.csv"
+        final_dataset_path, "malware_ember_features.csv"
     )
     df.to_csv(malware_dataset_filename, index=True, index_label="sha256")
     logger.info(f"Dataframe of shape {df.shape} saved to {malware_dataset_filename}")
