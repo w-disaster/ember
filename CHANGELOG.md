@@ -1,3 +1,9 @@
+## [1.2.3](https://github.com/w-disaster/ember/compare/1.2.2...1.2.3) (2025-04-28)
+
+### Bug Fixes
+
+* raw feature extraction order ([4c76f3e](https://github.com/w-disaster/ember/commit/4c76f3ef57115b550b5aa9bd23846daba47e3eec))
+
 ## [1.2.2](https://github.com/w-disaster/ember/compare/1.2.1...1.2.2) (2025-04-27)
 
 ### Bug Fixes

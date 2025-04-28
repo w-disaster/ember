@@ -3,7 +3,7 @@ name = "EMBER__Wdis"
 packages = [
     { include = "ember" },
 ]
-version = "1.2.2"
+version = "1.2.3"
 description = "Elastic Malware Benchmark for Empowering Researchers "
 authors = ["Luca Fabri <luca.fabri1999@gmail.com>"]
 license = "MIT"
